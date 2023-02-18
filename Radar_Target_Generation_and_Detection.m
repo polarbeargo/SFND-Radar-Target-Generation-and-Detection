@@ -55,8 +55,8 @@ Rx=zeros(1,length(t)); %received signal
 Mix = zeros(1,length(t)); %beat signal
 
 %Similar vectors for range_covered and time delay.
-r_t=zeros(1,length(t));
-td=zeros(1,length(t));
+range_covered =zeros(1,length(t));
+time_delay = zeros(1,length(t));
 
 
 %% Signal generation and Moving Target simulation
@@ -67,18 +67,19 @@ for i=1:length(t)
     
     % *%TODO* :
     %For each time stamp update the Range of the Target for constant velocity. 
-    
+    range_covered(i) = position + Velocity*t(i);
+    time_delay(i) = 2*range_covered(i)/c;
     % *%TODO* :
     %For each time sample we need update the transmitted and
     %received signal. 
-    Tx(i) = zeros(1,length(t));
-    Rx (i)  = zeros(1,length(t));
+    Tx(i) = cos(2*pi*(fc*t(i)+slope*t(i)^2/2));
+    Rx(i) = cos(2*pi*(fc*(t(i)-time_delay(i)) + (slope*(t(i)-time_delay(i))^2)/2));
     
     % *%TODO* :
     %Now by mixing the Transmit and Receive generate the beat signal
     %This is done by element wise matrix multiplication of Transmit and
     %Receiver Signal
-    Mix(i) = zeros(1,length(t));
+    Mix(i) = Tx(i) .* Rx(i);
     
 end
 
@@ -88,18 +89,18 @@ end
  % *%TODO* :
 %reshape the vector into Nr*Nd array. Nr and Nd here would also define the size of
 %Range and Doppler FFT respectively.
-
+signal  = reshape(Mix, [Nr, Nd]);
  % *%TODO* :
 %run the FFT on the beat signal along the range bins dimension (Nr) and
 %normalize.
-
+signal_fft = fft(signal,Nr);
  % *%TODO* :
 % Take the absolute value of FFT output
-
+signal_fft = abs(signal_fft);
  % *%TODO* :
 % Output of FFT is double sided signal, but we are interested in only one side of the spectrum.
 % Hence we throw out half of the samples.
-
+signal_fft = signal_fft(1:(Nr/2));
 
 %plotting the range
 figure ('Name','Range from First FFT')
@@ -108,8 +109,9 @@ subplot(2,1,1)
  % *%TODO* :
  % plot FFT output 
 
- 
+plot(signal_fft); 
 axis ([0 200 0 1]);
+title('First FFT')
 
 
 
@@ -148,18 +150,20 @@ figure,surf(doppler_axis,range_axis,RDM);
 
 % *%TODO* :
 %Select the number of Training Cells in both the dimensions.
-
+Tr = 10;
+Td = 4;
 % *%TODO* :
 %Select the number of Guard Cells in both dimensions around the Cell under 
 %test (CUT) for accurate estimation
-
+Gr = 5;
+Gd = 2;
 % *%TODO* :
 % offset the threshold by SNR value in dB
-
+offset = 1.2;
 % *%TODO* :
 %Create a vector to store noise_level for each iteration on training cells
 noise_level = zeros(1,1);
-
+Tcell = (2Tr+2Gr+1)(2Td+2Gd+1) - (2Gr+1)(2Gd+1);
 
 % *%TODO* :
 %design a loop such that it slides the CUT across range doppler map by
