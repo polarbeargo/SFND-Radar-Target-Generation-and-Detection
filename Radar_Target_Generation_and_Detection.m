@@ -163,7 +163,7 @@ offset = 1.2;
 % *%TODO* :
 %Create a vector to store noise_level for each iteration on training cells
 noise_level = zeros(1,1);
-Tcell = (2Tr+2Gr+1)(2Td+2Gd+1) - (2Gr+1)(2Gd+1);
+training_cells = (2Tr+2Gr+1)(2Td+2Gd+1) - (2Gr+1)(2Gd+1);
 
 % *%TODO* :
 %design a loop such that it slides the CUT across range doppler map by
@@ -175,8 +175,17 @@ Tcell = (2Tr+2Gr+1)(2Td+2Gd+1) - (2Gr+1)(2Gd+1);
 %Further add the offset to it to determine the threshold. Next, compare the
 %signal under CUT with this threshold. If the CUT level > threshold assign
 %it a value of 1, else equate it to 0.
+for range_index = Tr + Gr + 1 : Nr/2 - Tr - Gr
+    for doppler_index = Td + Gd + 1 : Nd - Td - Gd        
 
-
+        CUT =  RDM(range_index, doppler_index);
+        if (CUT > threshold)
+            signal = 1;
+        else
+            signal = 0;
+        end
+    end
+end
    % Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
    % CFAR
 
