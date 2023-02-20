@@ -163,7 +163,7 @@ offset = 1.2;
 % *%TODO* :
 %Create a vector to store noise_level for each iteration on training cells
 noise_level = zeros(1,1);
-training_cells = (2Tr+2Gr+1)(2Td+2Gd+1) - (2Gr+1)(2Gd+1);
+training_cells = (2*Tr+2*Gr+1)*(2*Td+2*Gd+1) - (2*Gr+1)*(2*Gd+1);
 
 % *%TODO* :
 %design a loop such that it slides the CUT across range doppler map by
@@ -177,7 +177,12 @@ training_cells = (2Tr+2Gr+1)(2Td+2Gd+1) - (2Gr+1)(2Gd+1);
 %it a value of 1, else equate it to 0.
 for range_index = Tr + Gr + 1 : Nr/2 - Tr - Gr
     for doppler_index = Td + Gd + 1 : Nd - Td - Gd        
-
+        noise_level = zeros(1,1);
+        train_noise_sum = sum(db2pow(RDM(range_index-Tr-Gr : range_index+Tr+Gr, doppler_index-Td-Gd : doppler_index+Td+Gd)), 'all');
+        guard_noise_sum = sum(db2pow(RDM(range_index-Gr : range_index+Gr, doppler_index-Gd : doppler_index+Gd)), 'all');        
+        training_noise = train_noise_sum - guard_noise_sum;
+        threshold = pow2db(training_noise/training_cells);
+        threshold = threshold + offset;
         CUT =  RDM(range_index, doppler_index);
         if (CUT > threshold)
             signal = 1;
