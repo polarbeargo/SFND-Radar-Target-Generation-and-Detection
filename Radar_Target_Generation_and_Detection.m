@@ -145,7 +145,7 @@ range_axis = linspace(-200,200,Nr/2)*((Nr/2)/400);
 figure,surf(doppler_axis,range_axis,RDM);
 
 %% CFAR implementation
-
+CFAR = RDM;
 %Slide Window through the complete Range Doppler Map
 
 % *%TODO* :
@@ -176,7 +176,10 @@ training_cells = (2*Tr+2*Gr+1)*(2*Td+2*Gd+1) - (2*Gr+1)*(2*Gd+1);
 %signal under CUT with this threshold. If the CUT level > threshold assign
 %it a value of 1, else equate it to 0.
 for range_index = Tr + Gr + 1 : Nr/2 - Tr - Gr
-    for doppler_index = Td + Gd + 1 : Nd - Td - Gd        
+    for doppler_index = Td + Gd + 1 : Nd - Td - Gd 
+        % Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
+        % CFAR
+   
         noise_level = zeros(1,1);
         train_noise_sum = sum(db2pow(RDM(range_index-Tr-Gr : range_index+Tr+Gr, doppler_index-Td-Gd : doppler_index+Td+Gd)), 'all');
         guard_noise_sum = sum(db2pow(RDM(range_index-Gr : range_index+Gr, doppler_index-Gd : doppler_index+Gd)), 'all');        
@@ -189,10 +192,10 @@ for range_index = Tr + Gr + 1 : Nr/2 - Tr - Gr
         else
             signal = 0;
         end
+        
     end
 end
-   % Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
-   % CFAR
+  
 
 
 
@@ -203,7 +206,14 @@ end
 %than the Range Doppler Map as the CUT cannot be located at the edges of
 %matrix. Hence,few cells will not be thresholded. To keep the map size same
 % set those values to 0. 
- 
+ for i = 1: Nr/2
+    for j = 1: Nd
+        if i <= Tr + Gr || i >= Nr/2 - (Tr + Gr) || j <= Td + Gd || j >= Nd-(Td + Gd)
+            CFAR(i,j) = 0;
+        end
+    end
+end
+
 
 
 
