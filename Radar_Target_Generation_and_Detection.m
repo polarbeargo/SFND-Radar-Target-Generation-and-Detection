@@ -97,6 +97,8 @@ signal_fft = fft(signal,Nr);
  % *%TODO* :
 % Take the absolute value of FFT output
 signal_fft = abs(signal_fft);
+signal_fft = signal_fft ./ max(signal_fft);
+
  % *%TODO* :
 % Output of FFT is double sided signal, but we are interested in only one side of the spectrum.
 % Hence we throw out half of the samples.
