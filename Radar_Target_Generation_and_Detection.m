@@ -147,7 +147,8 @@ range_axis = linspace(-200,200,Nr/2)*((Nr/2)/400);
 figure,surf(doppler_axis,range_axis,RDM);
 
 %% CFAR implementation
-CFAR = RDM;
+CFAR = zeros(size(RDM));
+
 %Slide Window through the complete Range Doppler Map
 
 % *%TODO* :
@@ -177,42 +178,36 @@ training_cells = (2*Tr+2*Gr+1)*(2*Td+2*Gd+1) - (2*Gr+1)*(2*Gd+1);
 %Further add the offset to it to determine the threshold. Next, compare the
 %signal under CUT with this threshold. If the CUT level > threshold assign
 %it a value of 1, else equate it to 0.
-for range_index = Tr + Gr + 1 : Nr/2 - Tr - Gr
-    for doppler_index = Td + Gd + 1 : Nd - Td - Gd 
-        % Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
-        % CFAR
-   
-        noise_level = zeros(1,1);
-        train_noise_sum = sum(db2pow(RDM(range_index-Tr-Gr : range_index+Tr+Gr, doppler_index-Td-Gd : doppler_index+Td+Gd)), 'all');
-        guard_noise_sum = sum(db2pow(RDM(range_index-Gr : range_index+Gr, doppler_index-Gd : doppler_index+Gd)), 'all');        
-        training_noise = train_noise_sum - guard_noise_sum;
-        threshold = pow2db(training_noise/training_cells);
-        threshold = threshold + offset;
-        CUT =  RDM(range_index, doppler_index);
-        if (CUT > threshold)
-            signal = 1;
-        else
-            signal = 0;
-        end
-        
+for j=1:Nd-2*(Tr+Gr)
+    for i=1:Nr/2-2*(Td+Gd)
+           % Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
+           % CFAR
+         
+          train_noise_sum = db2pow(RDM(i:i+2*(Td+Gd),j:j+2*(Gr+Tr)));
+          train_noise_sum(Td+1:end-Td,Tr+1:end-Tr) = 0;          
+          threshold = pow2db(train_noise_sum/training_cells);
+          threshold = threshold * offset;
+          signal = RDM(i+(Td+Gd),j+(Td+Gr));
+          if (signal > threshold)
+              signal = 0;
+          else
+              signal = 1;
+             
+          end
+          CFAR(i+(Td+Gd),j+(Td+Gr)) = signal;
     end
 end
-  
-
-
-
-
 
 % *%TODO* :
 % The process above will generate a thresholded block, which is smaller 
 %than the Range Doppler Map as the CUT cannot be located at the edges of
 %matrix. Hence,few cells will not be thresholded. To keep the map size same
 % set those values to 0. 
- for i = 1: Nr/2
+for i = 1: Nr/2
     for j = 1: Nd
-        if i <= Tr + Gr || i >= Nr/2 - (Tr + Gr) || j <= Td + Gd || j >= Nd-(Td + Gd)
-            CFAR(i,j) = 0;
-        end
+       if i <= Tr + Gr || i >= Nr/2 - (Tr + Gr) || j <= Td + Gd || j >= Nd-(Td + Gd)
+          CFAR(i,j) = 0;
+       end
     end
 end
 
