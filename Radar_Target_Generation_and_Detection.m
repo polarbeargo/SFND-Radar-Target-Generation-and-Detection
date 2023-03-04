@@ -18,8 +18,8 @@ c = 3*10^8
 % define the target's initial position and velocity. Note : Velocity
 % remains contant
 
-position = 100
-Velocity = 20
+position = 90
+Velocity = 10
 
 
 %% FMCW Waveform Generation
