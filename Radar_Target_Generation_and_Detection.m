@@ -187,14 +187,14 @@ for j=1:Nd-2*(Tr+Gr)
           train_noise_sum(Td+1:end-Td,Tr+1:end-Tr) = 0;          
           threshold = pow2db(train_noise_sum/training_cells);
           threshold = threshold * offset;
-          signal = RDM(i+(Td+Gd),j+(Td+Gr));
+          signal = RDM(i+Td+Gd,j+Td+Gr);
           if (signal > threshold)
               signal = 0;
           else
               signal = 1;
              
           end
-          CFAR(i+(Td+Gd),j+(Td+Gr)) = signal;
+          CFAR(i+Td+Gd,j+Td+Gr) = signal;
     end
 end
 
