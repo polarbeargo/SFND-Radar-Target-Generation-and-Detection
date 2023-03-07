@@ -4,7 +4,8 @@
 [image1]: ./images/fig2.png
 [image2]: ./images/fig3.png
 [image3]: ./images/Range_from_first_FFT.png
-[image4]: ./images/project_layout.png  
+[image4]: ./images/project_layout.png 
+[image5]: ./images/image8.png 
 
 ### Project Layout  
   
@@ -43,8 +44,13 @@ slope = B/Tchirp
 
 ### Range FFT  
 Implement the Range FFT on the Beat or Mixed Signal and plot the result   
-![][image3] 
-![][image1] 
+![][image3]  
+
+Range Doppler Map   
+
+![][image1]  
+![][image5] 
+
 ### 2D CFAR   
 Implement the 2D CFAR process on the output of 2D FFT operation, i.e the Range Doppler Map  
 
@@ -81,14 +87,14 @@ for j=1:Nd-2*(Tr+Gr)
           train_noise_sum(Td+1:end-Td,Tr+1:end-Tr) = 0;          
           threshold = pow2db(train_noise_sum/training_cells);
           threshold = threshold * offset;
-          signal = RDM(i+(Td+Gd),j+(Td+Gr));
+          signal = RDM(i+Td+Gd,j+Td+Gr);
           if (signal > threshold)
               signal = 0;
           else
               signal = 1;
              
           end
-          CFAR(i+(Td+Gd),j+(Td+Gr)) = signal;
+          CFAR(i+Td+Gd,j+Td+Gr) = signal;
     end
 end
 ```
