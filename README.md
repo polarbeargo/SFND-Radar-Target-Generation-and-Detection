@@ -83,8 +83,7 @@ for j=1:Nd-2*(Tr+Gr)
            % Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
            % CFAR
          
-          train_noise_sum = db2pow(RDM(i:i+2*(Td+Gd),j:j+2*(Gr+Tr)));
-          train_noise_sum(Td+1:end-Td,Tr+1:end-Tr) = 0;          
+          train_noise_sum = db2pow(RDM(i:i+2*(Td+Gd),j:j+2*(Gr+Tr)));        
           threshold = pow2db(train_noise_sum/training_cells);
           threshold = threshold * offset;
           signal = RDM(i+Td+Gd,j+Td+Gr);
