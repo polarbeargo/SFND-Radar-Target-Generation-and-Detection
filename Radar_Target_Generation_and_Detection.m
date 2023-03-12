@@ -178,21 +178,21 @@ training_cells = (2*Tr+2*Gr+1)*(2*Td+2*Gd+1) - (2*Gr+1)*(2*Gd+1);
 %Further add the offset to it to determine the threshold. Next, compare the
 %signal under CUT with this threshold. If the CUT level > threshold assign
 %it a value of 1, else equate it to 0.
-for j=1:Nd-2*(Tr+Gr)
-    for i=1:Nr/2-2*(Td+Gd)
+for i=1:Nr/2-2*(Td+Gd)
+    for j=1:Nd-2*(Tr+Gr)
+    
            % Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
            % CFAR
          
-          train_noise_sum = db2pow(RDM(i:i+2*(Td+Gd),j:j+2*(Gr+Tr)));
-          train_noise_sum(Td+1:end-Td,Tr+1:end-Tr) = 0;          
+          train_noise_sum = db2pow(RDM(i:i+2*(Td+Gd),j:j+2*(Gr+Tr)));        
           threshold = pow2db(train_noise_sum/training_cells);
-          threshold = threshold * offset;
+          threshold = threshold + offset;
           signal = RDM(i+Td+Gd,j+Td+Gr);
+
           if (signal > threshold)
-              signal = 0;
+            signal = 0;
           else
-              signal = 1;
-             
+            signal = 1;    
           end
           CFAR(i+Td+Gd,j+Td+Gr) = signal;
     end
