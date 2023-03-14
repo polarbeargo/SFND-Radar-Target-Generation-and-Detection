@@ -49,9 +49,9 @@ Implement the Range FFT on the Beat or Mixed Signal and plot the result
 Range Doppler Map   
 
 ![][image1]  
+### 2D CFAR  
 ![][image5] 
-
-### 2D CFAR   
+ 
 Implement the 2D CFAR process on the output of 2D FFT operation, i.e the Range Doppler Map  
 
 - Determine the number of Training cells for each dimension. Similarly, pick the number of guard cells.
@@ -79,20 +79,21 @@ offset = 1.2;
 
 ```
 for i=1:Nr/2-2*(Td+Gd)
-    for j=1:Nd-2*(Tr+Gr)
+     for j=1:Nd-2*(Tr+Gr)
+
     
            % Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
            % CFAR
-         
-          train_noise_sum = db2pow(RDM(i:i+2*(Td+Gd),j:j+2*(Gr+Tr)));        
-          threshold = pow2db(train_noise_sum/training_cells);
-          threshold = threshold + offset;
+
+          train_noise_sum = db2pow(RDM(i:i+2*(Td+Gd),j:j+2*(Gr+Tr)));
+          noise_level(i,j) = pow2db(sum(sum(train_noise_sum))/training_cells);
+          threshold = noise_level(i,j)* offset;
           signal = RDM(i+Td+Gd,j+Td+Gr);
 
           if (signal > threshold)
-            signal = 0;
+            signal = 1;
           else
-            signal = 1;    
+            signal = 0;    
           end
           CFAR(i+Td+Gd,j+Td+Gr) = signal;
     end
